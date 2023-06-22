@@ -152,5 +152,3 @@ cython_debug/
 #.idea/
 
 
-#for ignoring the installed packages
-node_modules/        # Ignore the entire "node_modules" directory for Node.js projects
