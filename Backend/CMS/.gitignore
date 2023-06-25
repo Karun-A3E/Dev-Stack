@@ -5,6 +5,6 @@ node_modules/
 package-lock.json
 # Ignore yarn cache folder
 
-models/configurations/databaseconfig.js/*
+/models/configurations/databaseconfig.js/*
 ```
 
