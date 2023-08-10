@@ -1,8 +1,0 @@
-# Ignore the Node.js package directory
-node_modules/
-
-# Ignore package lock files
-package-lock.json
-# Ignore yarn cache folder
-
-./models/configurations/databaseconfig.js 
