@@ -1,0 +1,1080 @@
+openapi: 3.0.3
+info:
+  title: User Management API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      summary: Fetch all users (UNUSED)
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+  /users/{id}:
+    get:
+      summary: Fetch specific user by ID
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+  /users/image/{id}:
+    get:
+      summary: Fetch user's profile picture by ID
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Image not found
+  /addNewUser:
+    post:
+      summary: Add a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: JohnDoe
+                email:
+                  type: string
+                  example: john.doe@example.com
+                password:
+                  type: string
+                  example: myPassword123
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userID:
+                    type: integer
+                    description: The ID of the newly created user
+  /user/{id}:
+    delete:
+      summary: Delete a user by ID (UNUSED)
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully
+        '404':
+          description: User not found
+  /user/paged:
+    get:
+      summary: Fetch paginated user data with search capabilities (Requires token)
+      parameters:
+        - name: page
+          in: query
+          description: Page number (optional, default: 1)
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          in: query
+          description: Number of users per page (optional, default: 10)
+          schema:
+            type: integer
+            minimum: 1
+        - name: search
+          in: query
+          description: Search input for filtering users (optional)
+          schema:
+            type: string
+        - name: columns
+          in: query
+          description: Selected columns to fetch (optional, comma-separated)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUser'
+  /userSpecificInformation:
+    get:
+      summary: Fetch specific information for authenticated user (Requires token)
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users:
+    put:
+      summary: Update user information (Requires token)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                profilePic:
+                  type: string
+                  format: binary
+                oldProfilePicUrl:
+                  type: string
+      responses:
+        '200':
+          description: User information updated successfully
+        '409':
+          description: User update conflict (duplicate key)
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        userID:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        profile_pic_url:
+          type: string
+    PaginatedUser:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalUsers:
+          type: integer
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+
+
+openapi: 3.0.3
+info:
+  title: User Bookmarks and Games API
+  version: 1.0.0
+paths:
+  /top10Games:
+    get:
+      summary: Fetch the top 10 games
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+        '500':
+          description: Internal Server Error
+  /GetUserBookmarked:
+    get:
+      summary: Fetch bookmarks of the authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bookmark'
+        '500':
+          description: Internal Server Error
+  /CheckIfGameBookmrked:
+    get:
+      summary: Check if a game is bookmarked by the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: query
+          in: query
+          description: ID of the game to check
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isBookmarked:
+                    type: boolean
+        '500':
+          description: Internal Server Error
+  /newBookMark:
+    post:
+      summary: Add a new bookmark for the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: query
+          in: query
+          description: ID of the game to bookmark
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Bookmark added successfully
+        '500':
+          description: Internal Server Error
+  /removeBookmark:
+    delete:
+      summary: Remove a bookmark for the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: query
+          in: query
+          description: ID of the game to remove from bookmarks
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Bookmark removed successfully
+        '500':
+          description: Internal Server Error
+components:
+  schemas:
+    Game:
+      type: object
+      properties:
+        gameID:
+          type: integer
+        name:
+          type: string
+        // Add other game properties here as needed
+    Bookmark:
+      type: object
+      properties:
+        bookmarkID:
+          type: integer
+        gameID:
+          type: integer
+        userID:
+          type: integer
+        // Add other bookmark properties here as needed
+security:
+  - bearerAuth: []
+
+openapi: 3.0.3
+info:
+  title: Games API
+  version: 1.0.0
+paths:
+  /games/allGames:
+    get:
+      summary: Fetch all games (UNUSED)
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+        '500':
+          description: Internal Server Error
+  /games/Pagination:
+    get:
+      summary: Fetch paginated game data (UNUSED)
+      parameters:
+        - name: page
+          in: query
+          description: Page number (optional, default: 1)
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          in: query
+          description: Number of games per page (optional, default: 10)
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GamePagination'
+        '500':
+          description: Internal Server Error
+  /games/{gameid}:
+    get:
+      summary: Fetch specific game by ID
+      parameters:
+        - name: gameid
+          in: path
+          description: Game ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '500':
+          description: Internal Server Error
+    patch:
+      summary: Update game information by ID
+      parameters:
+        - name: gameid
+          in: path
+          description: Game ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameUpdate'
+      responses:
+        '200':
+          description: Game updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '409':
+          description: Conflict - Duplicate key
+        '500':
+          description: Internal Server Error
+  /getStatus:
+    get:
+      summary: Get game release status and upcoming games
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameStatus'
+  /getRandom:
+    get:
+      summary: Get random games by section value
+      parameters:
+        - name: value
+          in: query
+          description: Section value (e.g., "new", "popular")
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+  /gamesFilters:
+    get:
+      summary: Fetch paginated game data with filtering
+      parameters:
+        - name: page
+          in: query
+          description: Page number (optional, default: 1)
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          in: query
+          description: Number of games per page (optional, default: 10)
+          schema:
+            type: integer
+            minimum: 1
+        - name: yearRange
+          in: query
+          description: Comma-separated range of years (e.g., "2010,2020")
+          schema:
+            type: string
+        - name: minRating
+          in: query
+          description: Minimum game rating (float)
+          schema:
+            type: number
+        - name: maxRating
+          in: query
+          description: Maximum game rating (float)
+          schema:
+            type: number
+        - name: platform
+          in: query
+          description: Comma-separated list of platform names
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Comma-separated list of category names
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search input for filtering games (optional)
+          schema:
+            type: string
+        - name: columns
+          in: query
+          description: Selected columns to fetch (optional, comma-separated)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GamePagination'
+        '500':
+          description: Internal Server Error
+  /newGame:
+    post:
+      summary: Add a new game
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NewGameRequest'
+      responses:
+        '201':
+          description: Game added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gameID:
+                    type: integer
+        '500':
+          description: Internal Server Error
+components:
+  schemas:
+    Game:
+      type: object
+      properties:
+        gameID:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        released_year:
+          type: integer
+        profile_pic_url:
+          type: string
+    GamePagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalGames:
+          type: integer
+        games:
+          type: array
+          items:
+            $ref: '#/components/schemas/Game'
+    GameStatus:
+      type: object
+      properties:
+        Status:
+          type: object
+          additionalProperties:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Game'
+    GameUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        released_year:
+          type: integer
+        profile_pic_url:
+          type: string
+        oldImageURL:
+          type: string
+    NewGameRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        released_year:
+          type: integer
+        categoryname:
+          type: string
+        platformname:
+          type: string
+        price:
+          type: string
+        profilePic:
+          type: string
+          format: binary
+security:
+  - bearerAuth: []
+
+
+openapi: 3.0.3
+info:
+  title: Platform and Category API
+  version: 1.0.0
+paths:
+  /categories/{catid}:
+    put:
+      summary: Update category information by ID (UNUSED)
+      parameters:
+        - name: catid
+          in: path
+          description: Category ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryUpdate'
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '409':
+          description: Conflict - Duplicate key
+        '500':
+          description: Internal Server Error
+  /platforms/{platformid}:
+    put:
+      summary: Update platform information by ID (UNUSED)
+      parameters:
+        - name: platformid
+          in: path
+          description: Platform ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformUpdate'
+      responses:
+        '200':
+          description: Platform updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '409':
+          description: Conflict - Duplicate key
+        '500':
+          description: Internal Server Error
+  /categories:
+    get:
+      summary: Fetch all categories (UNUSED)
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '500':
+          description: Internal Server Error
+  /platforms:
+    get:
+      summary: Fetch all platforms (UNUSED)
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Platform'
+        '500':
+          description: Internal Server Error
+  /categories:
+    post:
+      summary: Add a new category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCategoryRequest'
+      responses:
+        '200':
+          description: New category added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: Internal Server Error
+  /platforms:
+    post:
+      summary: Add a new platform
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPlatformRequest'
+      responses:
+        '200':
+          description: New platform added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: Internal Server Error
+  /platforms/{platformid}:
+    delete:
+      summary: Delete a platform by ID (USED FOR DELETING)
+      parameters:
+        - name: platformid
+          in: path
+          description: Platform ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Platform deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: Internal Server Error
+  /categories/{catid}:
+    delete:
+      summary: Delete a category by ID (USED FOR DELETING)
+      parameters:
+        - name: catid
+          in: path
+          description: Category ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Category deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: Internal Server Error
+  /platform/paged:
+    get:
+      summary: Get platforms paged
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          in: query
+          description: Number of platforms per page
+          schema:
+            type: integer
+            minimum: 1
+        - name: search
+          in: query
+          description: Search input for filtering platforms (optional)
+          schema:
+            type: string
+        - name: columns
+          in: query
+          description: Selected columns to fetch (optional, comma-separated)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedPlatforms'
+        '500':
+          description: Internal Server Error
+  /category/paged:
+    get:
+      summary: Get categories paged
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          in: query
+          description: Number of categories per page
+          schema:
+            type: integer
+            minimum: 1
+        - name: search
+          in: query
+          description: Search input for filtering categories (optional)
+          schema:
+            type: string
+        - name: columns
+          in: query
+          description: Selected columns to fetch (optional, comma-separated)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedCategories'
+        '500':
+          description: Internal Server Error
+  /platform/{id}:
+    get:
+      summary: Get platform details by ID
+      parameters:
+        - name: id
+          in: path
+          description: Platform ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformDetails'
+        '500':
+          description: Internal Server Error
+  /category/{id}:
+    get:
+      summary: Get category details by ID
+      parameters:
+        - name: id
+          in: path
+          description: Category ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetails'
+        '500':
+          description: Internal Server Error
+  /getFilters:
+    get:
+      summary: Get filters in pagination
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+        - name: filters
+          in: query
+          description: Multiple filter criteria as comma-separated values
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedFilters'
+        '500':
+          description: Internal Server Error
+  /updatePlatform/updateCategory:
+    put:
+      summary: Update platform and category information for a game
+      parameters:
+        - name: gameid
+          in: query
+          description: Game ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlatformCategoryRequest'
+      responses:
+        '200':
+          description: Platform and category updates successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatePlatformCategoryResponse'
+        '400':
+          description: Invalid data provided
+        '500':
+          description: Internal Server Error
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        catid:
+          type: integer
+        catname:
+          type: string
+        cat_description:
+          type: string
+    Platform:
+      type: object
+      properties:
+        platformid:
+          type: integer
+        platform_name:
+          type: string
+        platform_description:
+          type: string
+    NewCategoryRequest:
+      type: object
+      properties:
+        catname:
+          type: string
+        cat_description:
+          type: string
+    NewPlatformRequest:
+      type: object
+      properties:
+        platform_name:
+          type: string
+        platform_description:
+          type: string
+    PagedPlatforms:
+      type: object
+      properties:
+        total_count:
+          type: integer
+        page:
+          type: integer
+        platforms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Platform'
+    PagedCategories:
+      type: object
+      properties:
+        total_count:
+          type: integer
+        page:
+          type: integer
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    PlatformDetails:
+      type: object
+      properties:
+        platformid:
+          type: integer
+        platform_name:
+          type: string
+        platform_description:
+          type: string
+    CategoryDetails:
+      type: object
+      properties:
+        catid:
+          type: integer
+        catname:
+          type: string
+        cat_description:
+          type: string
+    PagedFilters:
+      type: object
+      properties:
+        page:
+          type: integer
+        filters:
+          type: object
+    CategoryUpdate:
+      type: object
+      properties:
+        catname:
+          type: string
+        cat_description:
+          type: string
+    PlatformUpdate:
+      type: object
+      properties:
+        platform_name:
+          type: string
+        platform_description:
+          type: string
+    UpdatePlatformCategoryRequest:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            type: string
+        platforms:
+          type: array
+          items:
+            type: string
+        prices:
+          type: array
+          items:
+            type: string
+    UpdatePlatformCategoryResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        platform_price_old:
+          type: array
+          items:
+            type: object
+            properties:
+              platform:
+                type: string
+              price:
+                type: integer
+        platform_price_new:
+          type: array
+          items:
+            type: object
+            properties:
+              platform:
+                type: string
+              price:
+                type: string
+
+    

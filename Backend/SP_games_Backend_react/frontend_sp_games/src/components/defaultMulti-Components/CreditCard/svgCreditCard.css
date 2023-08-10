@@ -1,0 +1,18 @@
+/* Styles for SVG cards */
+.svg-card {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100px; /* Adjust the width as needed */
+  height: 210px; /* Adjust the height as needed */
+  transform: translateX(10px) rotateY(15deg); /* Apply a 3D rotation on hover */
+}
+
+.svg-card:not(:first-child) {
+  margin-top: -40px; /* Adjust the overlap distance as needed */
+}
+
+.svg-card:hover {
+  transform: translateY(-30px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
