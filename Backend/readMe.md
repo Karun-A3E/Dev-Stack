@@ -10,7 +10,3 @@ Feel free to explore the projects, learn from the code, and adapt the concepts t
 Each project is contained within its own folder. Navigate into a project's folder to find specific installation and usage instructions for that project.
 
 Contributions, bug reports, and feature requests are welcome! If you find any issues or want to add enhancements, feel free to open an issue or submit a pull request.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
