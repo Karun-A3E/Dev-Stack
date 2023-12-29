@@ -1,0 +1,22 @@
+{
+  "permissions": [
+    "Hosting Quests",
+    "Adding Members",
+    "Removing Members",
+
+    "Access to all Channels",
+
+    "Creating Channels",
+    "Editing Channels",
+    "Removing Channels",
+
+    "Adding members to Channels",
+    "Removing Members from Channels",
+
+    "Defining new roles and assigning Members",
+
+    "Changing Roles of Users",
+
+    "Deleting the server"
+    ]
+}
